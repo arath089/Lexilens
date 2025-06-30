@@ -72,7 +72,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-white backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-lg flex flex-col items-center gap-4"
+          className="bg-white backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-lg flex flex-col items-center gap-6"
         >
           <input
             type="text"
@@ -83,13 +83,22 @@ export default function Home() {
             className="w-full max-w-md px-4 py-3 rounded-lg bg-white text-black shadow shadow-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-          <button
-            onClick={fetchDefinition}
-            disabled={!word || loading}
-            className="w-[90%] max-w-md bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all text-white py-3 rounded-lg text-lg font-semibold shadow-md"
+          <motion.div
+            whileTap={{ scale: 0.97 }}
+            className="relative group w-[90%] max-w-md"
           >
-            {loading ? "Looking up..." : "✨ Define Word"}
-          </button>
+            <div
+              className="absolute inset-0 rounded-lg p-[2px] bg-gradient-to-r from-purple-700 via-pink-700 to-blue-700 opacity-0 group-hover:opacity-100 blur-sm  bg-[length:200%_200%] animate-borderGlow transition-all duration-500"
+            />
+
+            <button
+              onClick={fetchDefinition}
+              disabled={!word || loading}
+              className="relative z-10 w-full bg-black text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md hover:shadow-lg transition-colors duration-300"
+            >
+              {loading ? "Looking up..." : "✨ Define Word"}
+            </button>
+          </motion.div>
 
           {error && <p className="text-red-400">{error}</p>}
         </motion.div>
