@@ -1,45 +1,96 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+<h1>📘 LexiLens</h1>
+<p>
+  LexiLens is an elegant, AI-powered dictionary app built with <strong>Next.js</strong>, <strong>Tailwind CSS</strong>, and <strong>OpenAI</strong>.
+  It lets you explore word definitions, synonyms, antonyms, examples, and even fun facts — all with a stunning UI and instant results.
+</p>
 
-## Getting Started
+<img src="./public/lexilens-preview.png" alt="LexiLens Screenshot" />
 
-First, run the development server:
+<hr />
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+<h2>✨ Features</h2>
+<ul>
+  <li>🔍 Define any English word with OpenAI's powerful language model</li>
+  <li>🧠 Get synonyms, antonyms, and usage examples</li>
+  <li>💡 Discover interesting facts about each word</li>
+  <li>⚡ Sleek UI with animations (Framer Motion + Tailwind CSS)</li>
+  <li>🕘 History of recent searches (stored in localStorage)</li>
+  <li>💬 Token usage + cost display for transparency</li>
+</ul>
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+<hr />
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+<h2>🚀 Live Demo</h2>
+<p>
+  Check out the deployed app:<br />
+  👉 <a href="https://lexilens.vercel.app" target="_blank">https://lexilens.vercel.app</a>
+</p>
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+<hr />
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+<h2>🛠 Tech Stack</h2>
+<ul>
+  <li><a href="https://nextjs.org/" target="_blank">Next.js 15</a></li>
+  <li><a href="https://tailwindcss.com/" target="_blank">Tailwind CSS</a></li>
+  <li><a href="https://www.framer.com/motion/" target="_blank">Framer Motion</a></li>
+  <li><a href="https://platform.openai.com/" target="_blank">OpenAI API</a></li>
+  <li><a href="https://vercel.com/" target="_blank">Vercel</a> for deployment</li>
+</ul>
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+<hr />
 
-## Learn More
+<h2>🔐 Environment Variables</h2>
+<p>
+  To run this app locally, create a <code>.env.local</code> file in the root directory with:
+</p>
+<pre><code>OPENAI_API_KEY=your_openai_api_key</code></pre>
 
-To learn more about Next.js, take a look at the following resources:
+<hr />
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+<h2>🧑‍💻 Getting Started</h2>
+<ol>
+  <li>
+    <strong>Clone the repository</strong><br />
+    <code>git clone https://github.com/arath089/Lexilens.git</code><br />
+    <code>cd Lexilens</code>
+  </li>
+  <li>
+    <strong>Install dependencies</strong><br />
+    <code>yarn install</code>
+  </li>
+  <li>
+    <strong>Run the development server</strong><br />
+    <code>yarn dev</code><br />
+    Then open <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> in your browser.
+  </li>
+</ol>
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+<hr />
 
-## Deploy on Vercel
+<h2>🧾 Token Cost Calculation</h2>
+<p>
+  LexiLens displays the number of tokens used and the approximate cost of each definition request.
+  This helps you keep track of OpenAI API usage and spending.
+</p>
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+<hr />
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
-=======
-# Lexilens
-🔍 AI-powered dictionary built with Next.js, Tailwind CSS, and OpenAI. Discover definitions, synonyms, antonyms, and more — beautifully and instantly.
->>>>>>> c7992c7 (Initial commit)
+<h2>📁 Project Structure</h2>
+<pre><code>lexilens/
+├── public/
+├── src/
+│   └── pages/
+│       ├── index.js         # Main UI
+│       └── api/define.js    # OpenAI API integration
+├── .env.local               # Your OpenAI API key
+├── tailwind.config.js       # Tailwind setup
+├── README.md
+└── ...
+</code></pre>
+
+<hr />
+
+<h2>🛡 License</h2>
+<p>
+  MIT © <a href="https://github.com/arath089" target="_blank">@arath089</a>
+</p>
