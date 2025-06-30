@@ -1,115 +1,187 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 export default function Home() {
+  const [word, setWord] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("lexilens-history");
+    if (stored) setHistory(JSON.parse(stored));
+  }, []);
+
+  const updateHistory = (word) => {
+    const newHistory = [word, ...history.filter((w) => w !== word)].slice(0, 5);
+    setHistory(newHistory);
+    localStorage.setItem("lexilens-history", JSON.stringify(newHistory));
+  };
+
+  const fetchDefinition = async () => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const res = await fetch(`/api/define?word=${word}`);
+      const data = await res.json();
+
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setResult(data);
+        updateHistory(word);
+        console.log("Token usage:", data.usage);
+      }
+    } catch (err) {
+      setError("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
+    <main
+      className="min-h-screen bg-gradient-to-b from-[#0f0f0f] to-[#1a1a1a] text-white flex items-center justify-center px-4"
+      style={{
+        backgroundImage: `
+          radial-gradient(circle at center, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0) 60%),
+          radial-gradient(circle at center, rgba(255,255,255,0.04) 20%, rgba(0,0,0,0) 80%)
+        `,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "150% 150%",
+        backgroundPosition: "center center",
+      }}
     >
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/pages/index.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="w-full max-w-lg space-y-10">
+        {/* Header */}
+        <div className="text-center">
+          <h1 className="text-5xl font-extrabold tracking-tight mb-3 flex items-center justify-center gap-2">
+            <span>📘</span> <span>LexiLens</span>
+          </h1>
+          <p className="text-gray-400 text-lg">
+            Explore the beauty of words with AI
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        {/* Input + CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="bg-white backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-lg flex flex-col items-center gap-4"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <input
+            type="text"
+            name="word"
+            value={word}
+            onChange={(e) => setWord(e.target.value)}
+            placeholder="e.g. resilience, epiphany, eloquence"
+            className="w-full max-w-md px-4 py-3 rounded-lg bg-white text-black shadow shadow-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+          <button
+            onClick={fetchDefinition}
+            disabled={!word || loading}
+            className="w-[90%] max-w-md bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all text-white py-3 rounded-lg text-lg font-semibold shadow-md"
+          >
+            {loading ? "Looking up..." : "✨ Define Word"}
+          </button>
+
+          {error && <p className="text-red-400">{error}</p>}
+        </motion.div>
+
+        {history.length > 0 && (
+          <div className="w-full flex flex-wrap justify-center gap-2 mt-2">
+            {history.map((item, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  setWord(item);
+                  fetchDefinition(item);
+                }}
+                className="px-3 py-1 bg-gray-100 text-sm text-gray-700 rounded hover:bg-gray-200 transition"
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Skeleton Loader */}
+        {loading && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="bg-white backdrop-blur border border-white/10 p-6 rounded-xl shadow space-y-4 text-black animate-pulse"
+          >
+            <div className="h-6 bg-gray-300 rounded w-1/3"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+            </div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded w-full"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+            <div className="h-3 bg-gray-300 rounded w-1/3"></div>
+          </motion.div>
+        )}
+
+        {/* Result Output */}
+        {result && !loading && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="bg-white backdrop-blur border border-white/10 p-6 rounded-xl shadow space-y-4 text-black"
+          >
+            <h2 className="text-2xl font-bold capitalize">{word}</h2>
+            <p>
+              <strong>Definition:</strong> {result.definition}
+            </p>
+            <p>
+              <strong>Synonyms:</strong> {result.synonyms?.join(", ")}
+            </p>
+            <p>
+              <strong>Antonyms:</strong> {result.antonyms?.join(", ")}
+            </p>
+            <div>
+              <strong>Examples:</strong>
+              <ul className="list-disc list-inside mt-1">
+                {result.examples?.map((ex, i) => (
+                  <li key={i}>{ex}</li>
+                ))}
+              </ul>
+            </div>
+            {result.fact && (
+              <p className="italic text-sm text-gray-400">💡 {result.fact}</p>
+            )}
+          </motion.div>
+        )}
+
+        {/* Token Usage */}
+        {result?.usage && !loading && (
+          <p className="text-xs text-blue-300 italic">
+            {result.usage.prompt_tokens + result.usage.completion_tokens} tokens
+            used ≈ $
+            {(
+              (result.usage.prompt_tokens * 0.0015 +
+                result.usage.completion_tokens * 0.002) /
+              1000
+            ).toFixed(4)}{" "}
+            USD
+          </p>
+        )}
+      </div>
+    </main>
   );
 }
