@@ -4,7 +4,23 @@
   It lets you explore word definitions, synonyms, antonyms, examples, and even fun facts — all with a stunning UI and instant results.
 </p>
 
-<img src="./public/lexilens-preview.png" alt="LexiLens Screenshot" />
+<!-- Screenshot Gallery -->
+<h3>📸 Preview</h3>
+
+<div align="center">
+  <img src="./public/lexilens-preview.png" alt="LexiLens Landing Page" width="600" />
+  <br />
+  <em>🖥 Initial screen – clean UI with animated input and CTA</em>
+</div>
+
+<br />
+
+<div align="center">
+  <img src="./public/lexilens-preview-search.png" alt="LexiLens Search Result" width="600" />
+  <br />
+  <em>🔍 Search result with definition, synonyms, antonyms, and examples</em>
+</div>
+
 
 <hr />
 
