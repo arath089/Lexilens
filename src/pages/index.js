@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import Cookies from "js-cookie";
 
 export default function Home() {
   const [word, setWord] = useState("");
@@ -8,11 +8,25 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [history, setHistory] = useState([]);
+  const [queryCount, setQueryCount] = useState(0);
+  const [searchedWord, setSearchedWord] = useState("");
+  const [triggerSearch, setTriggerSearch] = useState(false);
+  const MAX_QUERIES_PER_DAY = 10;
 
   useEffect(() => {
     const stored = localStorage.getItem("lexilens-history");
     if (stored) setHistory(JSON.parse(stored));
+
+    const count = parseInt(Cookies.get("lexilens-count") || "0");
+    setQueryCount(count);
   }, []);
+
+  useEffect(() => {
+    if (triggerSearch && word.trim()) {
+      fetchDefinition();
+      setTriggerSearch(false);
+    }
+  }, [word, triggerSearch]);
 
   const updateHistory = (word) => {
     const newHistory = [word, ...history.filter((w) => w !== word)].slice(0, 5);
@@ -20,21 +34,46 @@ export default function Home() {
     localStorage.setItem("lexilens-history", JSON.stringify(newHistory));
   };
 
+  const incrementQueryCount = () => {
+    const newCount = queryCount + 1;
+    setQueryCount(newCount);
+    Cookies.set("lexilens-count", newCount.toString(), { expires: 1 });
+  };
+
   const fetchDefinition = async () => {
+    if (queryCount >= MAX_QUERIES_PER_DAY) {
+      setError("Daily limit reached. Please come back tomorrow!");
+      return;
+    }
+
+    if (word.trim().split(/\s+/).length > 3) {
+      setError("Please enter only up to 3 words.");
+      return;
+    }
+
+    if (!word.trim()) {
+      setError("Missing word");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
+    setSearchedWord(word);
 
     try {
+      console.log("Fetching:", word);
       const res = await fetch(`/api/define?word=${word}`);
       const data = await res.json();
+      console.log("API Response:", data);
 
       if (data.error) {
         setError(data.error);
       } else {
         setResult(data);
         updateHistory(word);
-        console.log("Token usage:", data.usage);
+        incrementQueryCount();
+        setError(null); // clear error
       }
     } catch (err) {
       setError("Something went wrong.");
@@ -43,9 +82,14 @@ export default function Home() {
     }
   };
 
+  const handleHistoryClick = (w) => {
+    setWord(w);
+    setTriggerSearch(true);
+  };
+
   return (
     <main
-      className="min-h-screen bg-gradient-to-b from-[#0f0f0f] to-[#1a1a1a] text-white flex items-center justify-center px-4"
+      className="min-h-screen py-10 px-4 bg-gradient-to-b from-[#0f0f0f] to-[#1a1a1a] text-white flex items-center justify-center"
       style={{
         backgroundImage: `
           radial-gradient(circle at center, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0) 60%),
@@ -62,8 +106,8 @@ export default function Home() {
           <h1 className="text-5xl font-extrabold tracking-tight mb-3 flex items-center justify-center gap-2">
             <span>📘</span> <span>LexiLens</span>
           </h1>
-          <p className="text-gray-400 text-lg">
-            Explore the beauty of words with AI
+          <p className="text-gray-400 text-md">
+            Search any word (in any language) and explore its meaning with AI
           </p>
         </div>
 
@@ -87,9 +131,7 @@ export default function Home() {
             whileTap={{ scale: 0.97 }}
             className="relative group w-[90%] max-w-md"
           >
-            <div
-              className="absolute inset-0 rounded-lg p-[2px] bg-gradient-to-r from-purple-700 via-pink-700 to-blue-700 opacity-0 group-hover:opacity-100 blur-sm  bg-[length:200%_200%] animate-borderGlow transition-all duration-500"
-            />
+            <div className="absolute inset-0 rounded-lg p-[2px] bg-gradient-to-r from-purple-700 via-pink-700 to-blue-700 opacity-0 group-hover:opacity-100 blur-sm bg-[length:200%_200%] animate-borderGlow transition-all duration-500" />
 
             <button
               onClick={fetchDefinition}
@@ -101,94 +143,63 @@ export default function Home() {
           </motion.div>
 
           {error && <p className="text-red-400">{error}</p>}
+          <p className="text-xs text-gray-400">
+            {MAX_QUERIES_PER_DAY - queryCount} free searches left today
+          </p>
         </motion.div>
 
-        {history.length > 0 && (
-          <div className="w-full flex flex-wrap justify-center gap-2 mt-2">
-            {history.map((item, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setWord(item);
-                  fetchDefinition(item);
-                }}
-                className="px-3 py-1 bg-gray-100 text-sm text-gray-700 rounded hover:bg-gray-200 transition"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* History Buttons */}
+        <div className="flex flex-wrap gap-2 justify-center">
+          {history.map((w) => (
+            <button
+              key={w}
+              onClick={() => handleHistoryClick(w)}
+              className="p-2 text-sm bg-gray-100 text-black rounded-xl hover:bg-gray-200 transition"
+            >
+              {w}
+            </button>
+          ))}
+        </div>
 
-        {/* Skeleton Loader */}
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="bg-white backdrop-blur border border-white/10 p-6 rounded-xl shadow space-y-4 text-black animate-pulse"
-          >
-            <div className="h-6 bg-gray-300 rounded w-1/3"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-            </div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-            </div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-full"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-            <div className="h-3 bg-gray-300 rounded w-1/3"></div>
-          </motion.div>
-        )}
+        {/* Result Rendering */}
+        {result && (
+          <div className="bg-white text-black p-6 rounded-xl shadow-lg space-y-4">
+            <h2 className="text-2xl font-bold capitalize">{searchedWord}</h2>
 
-        {/* Result Output */}
-        {result && !loading && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="bg-white backdrop-blur border border-white/10 p-6 rounded-xl shadow space-y-4 text-black"
-          >
-            <h2 className="text-2xl font-bold capitalize">{word}</h2>
             <p>
               <strong>Definition:</strong> {result.definition}
             </p>
-            <p>
-              <strong>Synonyms:</strong> {result.synonyms?.join(", ")}
-            </p>
-            <p>
-              <strong>Antonyms:</strong> {result.antonyms?.join(", ")}
-            </p>
-            <div>
-              <strong>Examples:</strong>
-              <ul className="list-disc list-inside mt-1">
-                {result.examples?.map((ex, i) => (
-                  <li key={i}>{ex}</li>
-                ))}
-              </ul>
-            </div>
-            {result.fact && (
-              <p className="italic text-sm text-gray-400">💡 {result.fact}</p>
-            )}
-          </motion.div>
-        )}
 
-        {/* Token Usage */}
-        {result?.usage && !loading && (
-          <p className="text-xs text-blue-300 italic">
-            {result.usage.prompt_tokens + result.usage.completion_tokens} tokens
-            used ≈ $
-            {(
-              (result.usage.prompt_tokens * 0.0015 +
-                result.usage.completion_tokens * 0.002) /
-              1000
-            ).toFixed(4)}{" "}
-            USD
-          </p>
+            {result.synonyms?.length > 0 && (
+              <p>
+                <strong>Synonyms:</strong> {result.synonyms.join(", ")}
+              </p>
+            )}
+
+            {result.antonyms?.length > 0 && (
+              <p>
+                <strong>Antonyms:</strong> {result.antonyms.join(", ")}
+              </p>
+            )}
+
+            {result.examples?.length > 0 && (
+              <div>
+                <strong>Examples:</strong>
+                <ul className="list-disc pl-5 mt-1 space-y-1">
+                  {result.examples.map((ex, i) => (
+                    <li key={i}>{ex}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {result.fact && (
+              <p className="text-sm text-gray-600 mt-4">
+                <span>💡</span>
+                <span className="italic">{result.fact}</span>
+              </p>
+            )}
+          </div>
         )}
       </div>
     </main>
