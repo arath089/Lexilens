@@ -201,6 +201,19 @@ export default function Home() {
             )}
           </div>
         )}
+
+        {result?.usage && !loading && (
+          <p className="text-xs text-blue-300 italic mt-2 text-center">
+            {result.usage.prompt_tokens + result.usage.completion_tokens} tokens
+            used ≈ $
+            {(
+              (result.usage.prompt_tokens * 0.0015 +
+                result.usage.completion_tokens * 0.002) /
+              1000
+            ).toFixed(4)}{" "}
+            USD
+          </p>
+        )}
       </div>
     </main>
   );
