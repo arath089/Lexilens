@@ -11,6 +11,11 @@ export default function Home() {
   const [queryCount, setQueryCount] = useState(0);
   const [searchedWord, setSearchedWord] = useState("");
   const [triggerSearch, setTriggerSearch] = useState(false);
+
+  const isEnglish = (text) => {
+    return /^[a-zA-Z\s'-]+$/.test((text || "").trim());
+  };
+
   const MAX_QUERIES_PER_DAY = 25;
 
   useEffect(() => {
@@ -73,7 +78,7 @@ export default function Home() {
         setResult(data);
         updateHistory(word);
         incrementQueryCount();
-        setError(null); // clear error
+        setError(null);
       }
     } catch (err) {
       setError("Something went wrong.");
@@ -85,6 +90,14 @@ export default function Home() {
   const handleHistoryClick = (w) => {
     setWord(w);
     setTriggerSearch(true);
+  };
+
+  const speakWord = (text) => {
+    if (!text || typeof window === "undefined") return;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    speechSynthesis.speak(utterance);
   };
 
   return (
@@ -164,8 +177,18 @@ export default function Home() {
         {/* Result Rendering */}
         {result && (
           <div className="bg-white text-black p-6 rounded-xl shadow-lg space-y-4">
-            <h2 className="text-2xl font-bold capitalize">{searchedWord}</h2>
-
+            <h2 className="text-2xl font-bold capitalize flex items-center gap-2">
+              {searchedWord}
+              {isEnglish(searchedWord) && (
+                <button
+                  onClick={() => speakWord(searchedWord)}
+                  className="text-blue-500 hover:text-blue-700 transition"
+                  title="Hear pronunciation"
+                >
+                  🔊
+                </button>
+              )}
+            </h2>
             <p>
               <strong>Definition:</strong> {result.definition}
             </p>
