@@ -11,7 +11,7 @@ export default function Home() {
   const [queryCount, setQueryCount] = useState(0);
   const [searchedWord, setSearchedWord] = useState("");
   const [triggerSearch, setTriggerSearch] = useState(false);
-  const MAX_QUERIES_PER_DAY = 10;
+  const MAX_QUERIES_PER_DAY = 25;
 
   useEffect(() => {
     const stored = localStorage.getItem("lexilens-history");
