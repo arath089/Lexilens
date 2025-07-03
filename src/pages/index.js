@@ -160,6 +160,15 @@ export default function Home() {
                 {loading ? "Looking up..." : "✨ Define Word"}
               </button>
             </motion.div>
+
+            {(error || queryCount < MAX_QUERIES_PER_DAY) && (
+              <div className="text-center space-y-1">
+                {error && <p className="text-red-400 text-sm">{error}</p>}
+                <p className="text-xs text-gray-400">
+                  {MAX_QUERIES_PER_DAY - queryCount} free searches left today
+                </p>
+              </div>
+            )}
           </motion.div>
         </form>
 
