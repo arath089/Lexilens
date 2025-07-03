@@ -125,41 +125,43 @@ export default function Home() {
         </div>
 
         {/* Input + CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-white backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-lg flex flex-col items-center gap-6"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            fetchDefinition();
+          }}
         >
-          <input
-            type="text"
-            name="word"
-            value={word}
-            onChange={(e) => setWord(e.target.value)}
-            placeholder="e.g. resilience, epiphany, eloquence"
-            className="w-full max-w-md px-4 py-3 rounded-lg bg-white text-black shadow shadow-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
           <motion.div
-            whileTap={{ scale: 0.97 }}
-            className="relative group w-[90%] max-w-md"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="bg-white backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-lg flex flex-col items-center gap-6"
           >
-            <div className="absolute inset-0 rounded-lg p-[2px] bg-gradient-to-r from-purple-700 via-pink-700 to-blue-700 opacity-0 group-hover:opacity-100 blur-sm bg-[length:200%_200%] animate-borderGlow transition-all duration-500" />
+            <input
+              type="text"
+              name="word"
+              value={word}
+              onChange={(e) => setWord(e.target.value)}
+              placeholder="e.g. resilience, epiphany, eloquence"
+              className="w-full max-w-md px-4 py-3 rounded-lg bg-white text-black shadow shadow-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
 
-            <button
-              onClick={fetchDefinition}
-              disabled={!word || loading}
-              className="relative z-10 w-full bg-black text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md hover:shadow-lg transition-colors duration-300"
+            <motion.div
+              whileTap={{ scale: 0.97 }}
+              className="relative group w-[90%] max-w-md"
             >
-              {loading ? "Looking up..." : "✨ Define Word"}
-            </button>
-          </motion.div>
+              <div className="absolute inset-0 rounded-lg p-[2px] bg-gradient-to-r from-purple-700 via-pink-700 to-blue-700 opacity-0 group-hover:opacity-100 blur-sm bg-[length:200%_200%] animate-borderGlow transition-all duration-500" />
 
-          {error && <p className="text-red-400">{error}</p>}
-          <p className="text-xs text-gray-400">
-            {MAX_QUERIES_PER_DAY - queryCount} free searches left today
-          </p>
-        </motion.div>
+              <button
+                type="submit"
+                disabled={!word || loading}
+                className="relative z-10 w-full bg-black text-white py-3 px-6 rounded-lg text-lg font-semibold shadow-md hover:shadow-lg transition-colors duration-300"
+              >
+                {loading ? "Looking up..." : "✨ Define Word"}
+              </button>
+            </motion.div>
+          </motion.div>
+        </form>
 
         {/* History Buttons */}
         <div className="flex flex-wrap gap-2 justify-center">
@@ -173,6 +175,16 @@ export default function Home() {
             </button>
           ))}
         </div>
+
+        {loading && (
+          <div className="bg-white text-black p-6 rounded-xl shadow-lg space-y-4 animate-pulse">
+            <div className="h-6 bg-gray-300 rounded w-1/2" />
+            <div className="h-4 bg-gray-200 rounded w-full" />
+            <div className="h-4 bg-gray-200 rounded w-5/6" />
+            <div className="h-4 bg-gray-200 rounded w-4/6" />
+            <div className="h-4 bg-gray-200 rounded w-2/3" />
+          </div>
+        )}
 
         {/* Result Rendering */}
         {result && (
